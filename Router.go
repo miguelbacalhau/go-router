@@ -4,8 +4,6 @@
 package router
 
 import (
-	"fmt"
-	"net/http"
 	"reflect"
 )
 
@@ -31,8 +29,7 @@ type Router struct {
 
 // Router Handler method, recieves a http resquest and calls
 // the matching Controller method
-func (router *Router) Handler(w http.ResponseWriter, r *http.Request) {
-	url := r.URL.Path[1:]
+func (router *Router) Handle(url string) string {
 
 	if route, hasRoute := router.Routes[url]; hasRoute {
 		// TODO improve calling, error prone
@@ -42,6 +39,8 @@ func (router *Router) Handler(w http.ResponseWriter, r *http.Request) {
 			Call([]reflect.Value{})
 
 		// TODO improve return value
-		fmt.Fprintf(w, response[0].String())
+		return response[0].String()
 	}
+
+	return ""
 }
