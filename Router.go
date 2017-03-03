@@ -7,6 +7,10 @@ import (
 	"errors"
 )
 
+type RouterInterface interface {
+	GetRoute(url string) (*Route, error)
+}
+
 // Route struct contains all the information for the route
 // including the Controller and the Method to call
 type Route struct {
