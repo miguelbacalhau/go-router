@@ -6,9 +6,9 @@ package router
 // Route struct contains all the information for the route
 // including the Controller and the Method to call
 type Route struct {
-	Pattern    string
-	Controller string
-	Method     string
+	Pattern string
+	Action  string
+	Method  string
 }
 
 // Router struct stores all the routes configured using
