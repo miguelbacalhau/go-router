@@ -3,6 +3,10 @@
 // and options.
 package router
 
+import (
+	"errors"
+)
+
 // Route struct contains all the information for the route
 // including the Controller and the Method to call
 type Route struct {
@@ -20,8 +24,14 @@ type Router struct {
 
 // Router Handler method, receives a url and return the
 // associated route
-func (router *Router) Handle(url string) *Route {
+func (router *Router) GetRoute(url string) (*Route, error) {
 
 	// @TODO pattern matching
-	return router.Routes[url]
+	route, found := router.Routes[url]
+	var err error
+	if !found {
+		err = errors.New("Route not found:" + url)
+	}
+
+	return route, err
 }
