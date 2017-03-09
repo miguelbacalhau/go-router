@@ -1,12 +1,14 @@
 // Package router provides a simple router to match URL's
-// with Controllers/Services/etc. Support for parameters
-// and options.
+// with Actions and support for parameters and options.
+// TODO options
 package router
 
 import (
 	"errors"
+	"strings"
 )
 
+// Router interface is a generic specification of the router
 type RouterInterface interface {
 	GetRoute(url string) (*Route, error)
 }
@@ -14,9 +16,9 @@ type RouterInterface interface {
 // Route struct contains all the information for the route
 // including the Controller and the Method to call
 type Route struct {
-	Pattern string
-	Action  string
-	Method  string
+	Pattern    string
+	Action     string
+	Method     string
 }
 
 // Router struct stores all the routes configured using
@@ -30,12 +32,46 @@ type Router struct {
 // associated route
 func (router *Router) GetRoute(url string) (*Route, error) {
 
-	// @TODO pattern matching
-	route, found := router.Routes[url]
+	var matchedRoute *Route
+	foundRoute := false
+	for _, route := range router.Routes {
+		if matchRoute(route.Pattern, url) {
+			matchedRoute = route
+			foundRoute = true
+		}
+	}
 	var err error
-	if !found {
+	if !foundRoute {
 		err = errors.New("Route not found:" + url)
 	}
 
-	return route, err
+	return matchedRoute, err
+}
+
+// Verifies if a URL matches a given pattern
+// Only supports static routes and simple parameters declared with an ':'
+// before the name
+func matchRoute(urlPattern string, urlRecieved string) bool {
+	splitUrlPattern := strings.Split(strings.Trim(urlPattern, "/"), "/")
+	splitUrlRecieved := strings.Split(strings.Trim(urlRecieved, "/"), "/")
+
+	if len(splitUrlRecieved) > len(splitUrlPattern) {
+		return false
+	}
+
+	for index, urlPatternElement := range splitUrlPattern {
+		if urlPatternElement[:1] == ":" {
+			continue
+		}
+		if len(splitUrlRecieved) > index {
+			if urlPatternElement != splitUrlRecieved[index] {
+				return false
+			}
+		} else {
+			return false
+		}
+	}
+
+	return true
+}
 }
