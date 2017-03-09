@@ -19,6 +19,7 @@ type Route struct {
 	Pattern    string
 	Action     string
 	Method     string
+	parameters map[string]string
 }
 
 // Router struct stores all the routes configured using
@@ -38,6 +39,7 @@ func (router *Router) GetRoute(url string) (*Route, error) {
 		if matchRoute(route.Pattern, url) {
 			matchedRoute = route
 			foundRoute = true
+			route.parameters = extractParamFromUrl(route.Pattern, url)
 		}
 	}
 	var err error
@@ -74,4 +76,28 @@ func matchRoute(urlPattern string, urlRecieved string) bool {
 
 	return true
 }
+
+// Extracts the parameters from an URL matching a given pattern
+// Assumes that the URL has already matched the pattern
+func extractParamFromUrl(urlPattern string, urlRecieved string) map[string]string {
+	splitUrlPattern := strings.Split(strings.Trim(urlPattern, "/"), "/")
+	splitUrlRecieved := strings.Split(strings.Trim(urlRecieved, "/"), "/")
+
+	params := make(map[string]string)
+
+	var paramValue string
+	var paramKey string
+	for index, urlPatternElement := range splitUrlPattern {
+		if urlPatternElement[:1] == ":" {
+			paramKey = urlPatternElement[1:len(urlPatternElement)]
+			if len(splitUrlRecieved) > index {
+				paramValue = splitUrlRecieved[index]
+			} else {
+				paramValue = ""
+			}
+			params[paramKey] = paramValue
+		}
+	}
+
+	return params
 }
