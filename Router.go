@@ -14,12 +14,30 @@ type RouterInterface interface {
 }
 
 // Route struct contains all the information for the route
-// including the Controller and the Method to call
+// including the pattern to match, the action to call and the
+// parameters
 type Route struct {
-	Pattern    string
-	Action     string
-	Method     string
+	pattern    string
+	action     string
 	parameters map[string]string
+}
+
+// Route action getter
+func (route *Route) GetAction() string {
+	return route.action
+}
+
+// Route parameters getter
+func (route *Route) GetParams() map[string]string {
+	return route.parameters
+}
+
+// Route constructor
+func NewRoute(pattern string, action string) *Route {
+	return &Route{
+		pattern: pattern,
+		action:  action,
+	}
 }
 
 // Router struct stores all the routes configured using
@@ -36,10 +54,10 @@ func (router *Router) GetRoute(url string) (*Route, error) {
 	var matchedRoute *Route
 	foundRoute := false
 	for _, route := range router.Routes {
-		if matchRoute(route.Pattern, url) {
+		if matchRoute(route.pattern, url) {
 			matchedRoute = route
 			foundRoute = true
-			route.parameters = extractParamFromUrl(route.Pattern, url)
+			route.parameters = extractParamFromUrl(route.pattern, url)
 		}
 	}
 	var err error
